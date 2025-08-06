@@ -1,0 +1,121 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sai Studio</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">Sai Studio</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="container">
+            <h2>Capturing Your Precious Moments</h2>
+            <p>Professional photography services for weddings, portraits, and events.</p>
+            <a href="#contact" class="btn">Book Now</a>
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="container">
+            <h2>Our Services</h2>
+            <div class="service-grid">
+                <div class="service-item">
+                    <h3>Wedding Photography</h3>
+                    <p>Capture every moment of your special day with our expert team.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Portrait Photography</h3>
+                    <p>Timeless portraits for individuals and families.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Event Photography</h3>
+                    <p>Professional coverage for corporate and private events.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about">
+        <div class="container">
+            <h2>About Us</h2>
+            <p>Sai Studio is dedicated to preserving your memories with stunning photography. With over 25 years of experience, our team specializes in creating beautiful images that tell your story.</p>
+            <div class="founder">
+                <img src="./assets/Screenshot (19).png" alt="Founder Photo">
+                <div class="founder-details">
+                    <h3>Tirumalasetti Suresh, Founder</h3>
+                    <p>Mr Suresh is an Experience photographer with a passion for capturing life's most meaningful moments. over 30 years of professional experience, Suresh founded Sai Studio to bring his vision of timeless photography to clients worldwide.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <div class="studio-details">
+                <p><strong>Address:</strong>oppsite sai mahal, Vuyyuru</p>
+                <p><strong>Phone:</strong> 9395379585</p>
+                <p><strong>Email:</strong> saistudio1919@gmail.com</p>
+                <p><strong>Business Hours:</strong> Sunday - Monday, 8 AM - 9:30 PM</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 Sai Studio. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
